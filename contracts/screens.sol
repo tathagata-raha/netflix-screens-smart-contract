@@ -1,4 +1,4 @@
-pragma solidity >=0.4.22 <0.9.0;
+pragma solidity >=0.6.0 <0.9.0;
 
 contract NetflixScreen {
 
@@ -12,6 +12,7 @@ contract NetflixScreen {
         uint status;
         uint sold_to;
         string content;
+        address payable seller_address;
     }
 
     struct ViewAvlItem {
@@ -23,8 +24,8 @@ contract NetflixScreen {
     }
     Item[] public items;
 
-    event ViewItems(ViewAvlItem[] res);
-    event BuyItem(Item res);
+    // event ViewItems(ViewAvlItem[] res);
+    // event BuyItem(Item res);
 
     mapping (uint => uint[]) public ownerToItemIds;
     mapping (address => uint) UserID;
@@ -34,7 +35,7 @@ contract NetflixScreen {
             UserID[msg.sender] = users + 1;
             users++;
         } 
-        items.push(Item(_name, description, price, UserID[msg.sender], 0, 0, content));
+        items.push(Item(_name, description, price, UserID[msg.sender], 0, 0, content, payable(msg.sender)));
     }
 
     function viewItems() private {
@@ -51,18 +52,20 @@ contract NetflixScreen {
                 itr++;
             }
         }
-        emit ViewItems(res);
+        // emit ViewItems(res);
     }
 
-    function buyItem(uint id) public {
+    function buyItem(uint id) public payable {
         require(items[id].status == 0);
         if(UserID[msg.sender] == 0){
             UserID[msg.sender] = users + 1;
             users++;
-        } 
+        }
+        require(msg.value==items[id].price,"Wrong amount paid. Please pay the correct amount to claim your screen.");
         items[id].status = 1;
         items[id].sold_to = UserID[msg.sender];
-        emit BuyItem(items[id]);
+        items[id].seller_address.transfer(items[id].price);
+        // emit BuyItem(items[id]);
     }
 
 }
