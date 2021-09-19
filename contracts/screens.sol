@@ -1,4 +1,4 @@
-pragma solidity >=0.6.0 <0.9.0;
+pragma solidity <0.6.0;
 
 contract NetflixScreen {
 
@@ -35,7 +35,7 @@ contract NetflixScreen {
             UserID[msg.sender] = users + 1;
             users++;
         } 
-        items.push(Item(_name, description, price, UserID[msg.sender], 0, 0, content, payable(msg.sender)));
+        items.push(Item(_name, description, price, UserID[msg.sender], 0, 0, content, address(uint160(msg.sender))));
     }
 
     function viewItems() private {
